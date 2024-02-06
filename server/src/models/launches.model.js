@@ -71,7 +71,7 @@ async function scheduleNewLaunch(launch) {
         flightNumber: newFlightNumber,
     });
 
-    await saveLaunch(launch);
+    await saveLaunch(newLaunch);
 }
 
 async function abortLaunchById(launchId) {
