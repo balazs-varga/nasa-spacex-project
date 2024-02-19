@@ -5,21 +5,6 @@ const { response } = require('../app');
 
 const DEFAULT_FLIGHT_NUMBER = 100;
 
-const launch = {
-    flightNumber: 100,
-    mission: 'mission1',
-    rocket: 'rocket',
-    launchDate: new Date(),
-    target: 'Kepler-442 b',
-    customers: [
-        'NASA',
-    ],
-    upcoming: true,
-    success: true
-};
-
-saveLaunch(launch);
-
 const SPACEX_API_URL = 'https://api.spacexdata.com/v4/launches/query';
 
 async function loadLaunchData() {
@@ -35,7 +20,8 @@ async function loadLaunchData() {
 }
 
 async function populateLaunches() {
-    const reponse = await axios.post(SPACEX_API_URL, {
+    console.log('Downloading spacex launces data...')
+    const response = await axios.post(SPACEX_API_URL, {
         query: {},
         options: {
             pagination: false,
@@ -61,7 +47,7 @@ async function populateLaunches() {
         throw new Error('Launch download data failed');
     }
 
-    const launchDocs = reponse.data.docs;
+    const launchDocs = response.data.docs;
     for (const launchDoc of launchDocs) {
         const payloads = launchDoc['payloads'];
         const customers = payloads.flatMap((payload) => {
@@ -104,11 +90,12 @@ async function getLatestFlightNumber() {
     return latestLaunch.flightNumber; 
 }
 
-async function getAllLaunches() {
-    return await launchesDatabase.find({}, {
-        '__id': 0,
-        '__v': 0
-    });
+async function getAllLaunches(skip, limit) {
+    return await launchesDatabase
+    .find({}, { '_id': 0, '__v': 0})
+    .sort({ flightNumber: 1 })
+    .skip(skip)
+    .limit(limit);
 }
 
 async function saveLaunch(launch) {
